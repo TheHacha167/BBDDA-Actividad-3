@@ -91,6 +91,160 @@ Los scripts están disponibles en la carpeta `mongo_scripts` del repositorio y p
      mongosh < mongo_scripts/crear_coleccion_estaciones.js
      ```
 
+# Actividad 1: Bases de Datos NoSQL y Motores de Búsqueda
+
+Este repositorio contiene los scripts y documentación relacionados con la actividad grupal de la asignatura **Bases de Datos Avanzadas**. El objetivo principal es diseñar y configurar un modelo de base de datos NoSQL utilizando MongoDB y Elasticsearch.
+
+## Enlace al repositorio original
+Puedes acceder al repositorio principal del equipo en GitHub:
+
+[Repositorio GitHub](https://github.com/TheHacha167/BBDDA-Actividad-1)
+
+---
+
+## Parte 2: Mapping de Elasticsearch
+
+### **Archivo: `mapping_estaciones.json`**
+
+```json
+PUT /estaciones
+{
+  "mappings": {
+    "properties": {
+      "estacion_id": {
+        "type": "integer"
+      },
+      "rotulo": {
+        "type": "text",
+        "fields": {
+          "keyword": { "type": "keyword", "ignore_above": 256 }
+        }
+      },
+      "tipo_estacion": {
+        "type": "text",
+        "fields": {
+          "keyword": { "type": "keyword", "ignore_above": 256 }
+        }
+      },
+      "margen": {
+        "type": "text",
+        "fields": {
+          "keyword": { "type": "keyword", "ignore_above": 256 }
+        }
+      },
+      "tipo_venta": {
+        "type": "text",
+        "fields": {
+          "keyword": { "type": "keyword", "ignore_above": 256 }
+        }
+      },
+      "horario": {
+        "type": "text"
+      },
+      "direccion": {
+        "properties": {
+          "codigo_postal": {
+            "type": "keyword"
+          },
+          "direccion": {
+            "type": "text"
+          },
+          "localidad": {
+            "properties": {
+              "nombre": {
+                "type": "text",
+                "fields": {
+                  "keyword": { "type": "keyword", "ignore_above": 256 }
+                }
+              },
+              "municipio": {
+                "properties": {
+                  "nombre": {
+                    "type": "text",
+                    "fields": {
+                      "keyword": { "type": "keyword", "ignore_above": 256 }
+                    }
+                  },
+                  "provincia": {
+                    "properties": {
+                      "nombre": {
+                        "type": "text",
+                        "fields": {
+                          "keyword": { "type": "keyword", "ignore_above": 256 }
+                        }
+                      },
+                      "comunidad": {
+                        "properties": {
+                          "nombre": {
+                            "type": "text",
+                            "fields": {
+                              "keyword": { "type": "keyword", "ignore_above": 256 }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "coordenadas": {
+        "type": "geo_point"
+      },
+      "carburantes": {
+        "type": "nested",
+        "properties": {
+          "nombre": {
+            "type": "text",
+            "fields": {
+              "keyword": { "type": "keyword", "ignore_above": 256 }
+            }
+          },
+          "precio": {
+            "type": "float"
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+### **Índice del clúster**
+Para crear el índice en el clúster ejecutamos el siguiente comando:
+```bash
+curl -X PUT "http://localhost:9200/estaciones" \
+  -H "Content-Type: application/json" \
+  -d @mapping_estaciones.json
+```
+
+### **Implementación del clúster**
+Para implementar el clúster, lo primero será descargar e instalar Elasticsearch. Luego, configuramos el archivo `elasticsearch.yml` dentro de la carpeta `config`, con la siguiente configuración:
+
+```yaml
+cluster.name: estacion-cluster
+node.name: nodo1
+path.data: /var/lib/elasticsearch/data
+path.logs: /var/log/elasticsearch
+network.host: 0.0.0.0
+http.port: 9200
+
+# Para varios nodos:
+discovery.seed_hosts: ["192.168.1.11", "192.168.1.12"]
+cluster.initial_master_nodes: ["nodo1", "nodo2"]
+```
+
+Luego, se inicia Elasticsearch con el comando:
+```bash
+./bin/elasticsearch
+```
+
+De esta manera, el clúster quedará configurado y listo para su uso.
+
+
 ---
 
 ### **Enlaces de referencia**
