@@ -1,0 +1,104 @@
+PUT /estaciones
+{
+  "mappings": {
+    "properties": {
+      "estacion_id": {
+        "type": "integer"
+      },
+      "rotulo": {
+        "type": "text",
+        "fields": {
+          "keyword": { "type": "keyword", "ignore_above": 256 }
+        }
+      },
+      "tipo_estacion": {
+        "type": "text",
+        "fields": {
+          "keyword": { "type": "keyword", "ignore_above": 256 }
+        }
+      },
+      "margen": {
+        "type": "text",
+        "fields": {
+          "keyword": { "type": "keyword", "ignore_above": 256 }
+        }
+      },
+      "tipo_venta": {
+        "type": "text",
+        "fields": {
+          "keyword": { "type": "keyword", "ignore_above": 256 }
+        }
+      },
+      "horario": {
+        "type": "text"
+      },
+      "direccion": {
+        "properties": {
+          "codigo_postal": {
+            "type": "keyword"
+          },
+          "direccion": {
+            "type": "text"
+          },
+          "localidad": {
+            "properties": {
+              "nombre": {
+                "type": "text",
+                "fields": {
+                  "keyword": { "type": "keyword", "ignore_above": 256 }
+                }
+              },
+              "municipio": {
+                "properties": {
+                  "nombre": {
+                    "type": "text",
+                    "fields": {
+                      "keyword": { "type": "keyword", "ignore_above": 256 }
+                    }
+                  },
+                  "provincia": {
+                    "properties": {
+                      "nombre": {
+                        "type": "text",
+                        "fields": {
+                          "keyword": { "type": "keyword", "ignore_above": 256 }
+                        }
+                      },
+                      "comunidad": {
+                        "properties": {
+                          "nombre": {
+                            "type": "text",
+                            "fields": {
+                              "keyword": { "type": "keyword", "ignore_above": 256 }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "coordenadas": {
+        "type": "geo_point"
+      },
+      "carburantes": {
+        "type": "nested",
+        "properties": {
+          "nombre": {
+            "type": "text",
+            "fields": {
+              "keyword": { "type": "keyword", "ignore_above": 256 }
+            }
+          },
+          "precio": {
+            "type": "float"
+          }
+        }
+      }
+    }
+  }
+}
