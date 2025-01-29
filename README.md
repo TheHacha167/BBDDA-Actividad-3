@@ -91,14 +91,6 @@ Los scripts están disponibles en la carpeta `mongo_scripts` del repositorio y p
      mongosh < mongo_scripts/crear_coleccion_estaciones.js
      ```
 
-# Actividad 1: Bases de Datos NoSQL y Motores de Búsqueda
-
-Este repositorio contiene los scripts y documentación relacionados con la actividad grupal de la asignatura **Bases de Datos Avanzadas**. El objetivo principal es diseñar y configurar un modelo de base de datos NoSQL utilizando MongoDB y Elasticsearch.
-
-## Enlace al repositorio original
-Puedes acceder al repositorio principal del equipo en GitHub:
-
-[Repositorio GitHub](https://github.com/TheHacha167/BBDDA-Actividad-1)
 
 ---
 
