@@ -214,27 +214,38 @@ curl -X PUT "http://localhost:9200/estaciones" \
 ```
 
 ### **Implementación del clúster**
-Para implementar el clúster, lo primero será descargar e instalar Elasticsearch. Luego, configuramos el archivo `elasticsearch.yml` dentro de la carpeta `config`, con la siguiente configuración:
-
-```yaml
-cluster.name: estacion-cluster
-node.name: nodo1
-path.data: /var/lib/elasticsearch/data
-path.logs: /var/log/elasticsearch
-network.host: 0.0.0.0
-http.port: 9200
-
-# Para varios nodos:
-discovery.seed_hosts: ["192.168.1.11", "192.168.1.12"]
-cluster.initial_master_nodes: ["nodo1", "nodo2"]
-```
-
-Luego, se inicia Elasticsearch con el comando:
+Para implementar el clúster, utilizamos el archivo que hemos creado de mongo_elastic.py:
 ```bash
-./bin/elasticsearch
-```
+from pymongo import MongoClient
+from elasticsearch import Elasticsearch, helpers
 
-De esta manera, el clúster quedará configurado y listo para su uso.
+# Conectar con MongoDB
+mongo_client = MongoClient("mongodb://localhost:27017/")
+mongo_db = mongo_client["Actividad_1_BBDDA"]
+mongo_collection = mongo_db["Estaciones"]
+
+# Conectar con Elasticsearch
+es = Elasticsearch("http://localhost:9200")
+
+# Extraer datos de MongoDB
+estaciones = list(mongo_collection.find({}, {"_id": 0}))  # Excluir _id de MongoDB
+
+# Crear lista de documentos para indexar en Elasticsearch
+acciones = [
+    {
+        "_index": "estaciones",
+        "_id": estacion["estacion_id"],  # Usamos el ID de la estación como identificador
+        "_source": estacion
+    }
+    for estacion in estaciones
+]
+
+# Insertar en Elasticsearch
+helpers.bulk(es, acciones)
+
+print(f"Se han indexado {len(estaciones)} estaciones en Elasticsearch.")
+```
+De esta manera, ElasticSearch quedará configurado y listo para su uso.
 
 
 ---
