@@ -247,6 +247,123 @@ print(f"Se han indexado {len(estaciones)} estaciones en Elasticsearch.")
 ```
 De esta manera, ElasticSearch quedará configurado y listo para su uso.
 
+--- 
+### **Explicación del código ETL para la migración de datos de MySQL a MongoDB**
+
+El funcionamiento del script de ETL (Extract, Transform, Load) que extrae datos desde una base de datos MySQL, los transforma en una estructura adecuada y los carga en MongoDB.  
+
+### **Esquema planteado para la funcionalidad del Script**
+
+1. Extraer datos desde MySQL mediante una consulta SQL con varias uniones.
+2. Transformar los datos para organizarlos en las colecciones adecuadas.
+3. Conectar a MongoDB y crear las colecciones necesarias.
+4. Eliminar los datos anteriores en MongoDB para evitar duplicaciones.
+5. Insertar los datos en lotes utilizando `bulk_write`.
+
+### **Se han definido tres colecciones principales:**
+
+- **Empresas**: Contiene información sobre las marcas de estaciones de servicio.
+- **Estaciones**: Contiene detalles sobre cada estación de servicio, incluyendo ubicación y tipo de servicio.
+- **PreciosCombustible**: Contiene los precios de los combustibles ofrecidos en cada estación.
+
+### **Flujo del código**
+
+#### **Conectar a MySQL y Obtener Datos**
+
+- Se establece la conexión con MySQL utilizando `pymysql`.
+- Se captura cualquier error en la conexión y se muestra un mensaje en caso de fallo.
+- Se ejecuta una consulta SQL con varias uniones para obtener los datos sobre estaciones de servicio, sus rótulos, tipos de combustible y precios.
+
+#### **Transformación de Datos**
+
+Los datos extraídos de MySQL se transforman en estructuras adecuadas para ser insertadas en MongoDB. Se crean tres estructuras de datos:
+
+- **Empresas**
+- **Estaciones**
+- **PreciosCombustible**
+
+Se asegura que los datos sean correctos antes de insertarlos en MongoDB. También se convierte cualquier dato en formato `Decimal` a `float` para evitar errores de tipo en MongoDB.
+
+#### **Conectar a MongoDB**
+
+- Se establece la conexión con MongoDB y se crean las colecciones necesarias.
+- Se capturan posibles errores en la conexión.
+
+#### **Eliminación de Datos Anteriores**
+
+Para evitar la duplicación de datos, se eliminan los registros existentes en las colecciones de MongoDB antes de insertar los nuevos datos.
+
+#### **Inserción de Datos en MongoDB**
+
+- Se utilizan operaciones en lote con `bulk_write` para mejorar la eficiencia en la inserción de datos en MongoDB.
+- La opción `upsert=True` permite actualizar los registros existentes o insertarlos si no existen.
+
+### **Ejecución del Script**
+
+1. Configurar las credenciales en la línea de código 12 a 18:
+
+   ```python
+   host=os.getenv("MYSQL_HOST", "localhost"),
+   user=os.getenv("MYSQL_USER", "root"),
+   password=os.getenv("MYSQL_PASSWORD", "mysql"),
+   db=os.getenv("MYSQL_DB", "bbdda_etl")
+   ```
+
+   Siempre y cuando se haya configurado de la misma manera, se mantiene el `host`, `user` y `password`, pero `MYSQL_DB` es necesario que apunte a la base de datos SQL donde tenemos los datos del esquema. Se debe reemplazar `bbdda_etl` por el nombre de tu base de datos.
+
+2. Se mantiene tal cual la conexión a MongoDB:
+
+   ```bash
+   MYSQL_DB=bbdda_etl MONGO_URI=mongodb://localhost:27017/
+   ```
+
+### **PRUEBAS REALIZADAS**
+
+#### **Antes de ejecutar el código:**
+
+- Se verifica la estructura de la base de datos en MySQL.
+
+#### **Después de ejecutar el código:**
+
+1. Se crea la base de datos `bbdda_mongo` en MongoDB.
+2. Accedemos a la base de datos en MongoDB:
+   
+   ```bash
+   use bbdda_mongo
+   ```
+   
+3. Verificamos las colecciones:
+   
+   ```bash
+   show collections
+   ```
+   
+   - Deben aparecer `Empresas`, `Estaciones` y `PreciosCombustible`.
+
+4. Revisamos si las estaciones se insertaron correctamente:
+   
+   ```bash
+   db.Estaciones.find().pretty()
+   ```
+
+5. Para verificar la información en `Empresas`:
+   
+   ```bash
+   db.Empresas.find().pretty()
+   ```
+
+6. Consultamos los precios de combustible de una estación específica:
+   
+   ```bash
+   db.PreciosCombustible.find({"estacion_id": 1}).pretty()
+   ```
+
+7. Para otra estación con `id=2`:
+   
+   ```bash
+   db.PreciosCombustible.find({"estacion_id": 2}).pretty()
+   
+
 
 ---
 
